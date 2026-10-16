@@ -1,7 +1,7 @@
 #ifndef TAD_H
 #define TAD_H
 
-struct No No;
+typedef No No;
 
 typedef struct Baralho Baralho;
 

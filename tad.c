@@ -6,7 +6,7 @@ struct No {
     int rotulo;
     struct No *proximo;
     struct No *anterior;
-}
+};
 
 
 
@@ -14,13 +14,13 @@ struct Baralho {
     No *sentinela;
 };
 
-Baralho criar (int n){
+Baralho *criar (int n){
     Baralho *b = malloc(sizeof(Baralho));
     if (b==NULL){
         return NULL;
     }
     b->sentinela = malloc(sizeof(No));
-    No *atual = sentinela;
+    No *atual = b->sentinela;
     for (int i=1; i<=n; i++){
         atual->proximo = malloc(sizeof(No));
         if (atual->proximo == NULL){
@@ -32,7 +32,7 @@ Baralho criar (int n){
     }
     b->sentinela->anterior = atual;
     atual->proximo = b->sentinela;
-    sentinela->rotulo = -1;
+    b->sentinela->rotulo = -1;
     return b;
 }
 
