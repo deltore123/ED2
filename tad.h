@@ -5,7 +5,7 @@ typedef No No;
 
 typedef struct Baralho Baralho;
 
-Baralho criar (int n);
+Baralho *criar (int n);
 
 void limpa (Baralho *baralho, int n);
 
