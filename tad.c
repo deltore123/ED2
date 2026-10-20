@@ -52,11 +52,65 @@ void limpa (Baralho *baralho, int n){
     free(baralho);
 }
 
-int corta (Baralho *b);
+int corta (Baralho *b, int n){
+    if (b = NULL || b->sentinela== NULL){
+        return 0;
+    }
+    No *atual = b->sentinela->proximo;
+    while (atual!=b->sentinela && atual->rotulo != n){
+        atual = atual->proximo;
+    }
+    if (atual->rotulo != n){
+        return 0;
+    }
+    atual=atual->proximo;
+    b->sentinela->proximo = atual;
+    b->sentinela->anterior->proximo = atual->anterior;
+    atual->anterior->proximo = b->sentinela;
+    atual->anterior = b->sentinela;
+    return 1;
+}
 
-int sobe (Baralho *b);
+int sobe (Baralho *b, int n){
+        if (b = NULL || b->sentinela== NULL){
+        return 0;
+    }
+    No *atual = b->sentinela->proximo;
+    while (atual!=b->sentinela && atual->rotulo != n){
+        atual = atual->proximo;
+    }
+    if (atual->rotulo != n){
+        return 0;
+    }
+    if (atual == b->sentinela->anterior){
+        return 1;
+    }
+    atual->anterior->proximo = atual->proximo;
+    atual->proximo->anterior = atual->anterior;
+    atual->proximo = b->sentinela;
+    atual->anterior = b->sentinela->anterior->anterior;
+    b->sentinela->anterior->proximo = atual;
+    b->sentinela->anterior = atual;
+    return 1;
+}
 
-int vira (Baralho *b);
+int vira (Baralho *b){
+    if (b==NULL || b->sentinela->proximo == NULL){
+        return 0;
+    }
+    No *p = b->sentinela->proximo;
+    b->sentinela->proximo = b->sentinela->anterior;
+    b->sentinela->anterior = p;
+    p= p->proximo;
+    No *aux;
+    while (p!=b->sentinela){
+        aux = p->proximo;
+        p->proximo = p->anterior;
+        p->anterior = aux;
+        p = p->anterior;
+    }
+    return 1;
+}
 
 int vira_topo (Baralho *b, int k);
 

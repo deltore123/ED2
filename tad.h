@@ -11,7 +11,7 @@ void limpa (Baralho *baralho, int n);
 
 int corta (Baralho *b);
 
-int sobe (Baralho *b);
+int sobe (Baralho *b, int n);
 
 int vira (Baralho *b);
 
