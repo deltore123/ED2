@@ -28,9 +28,19 @@ Baralho *criar (int n){
     No *atual = b->sentinela;
     for (int i=1; i<=n; i++){
         atual->proximo = malloc(sizeof(No));
-        if (atual->proximo == NULL){
-            return NULL;
+        if (atual->proximo == NULL) {
+        No *p = b->sentinela->proximo;
+
+        while (p != b->sentinela && p != NULL) {
+            No *aux = p->proximo;
+            free(p);
+            p = aux;
         }
+
+    free(b->sentinela);
+    free(b);
+    return NULL;
+}
         atual->proximo->rotulo = i;
         atual->proximo->anterior=atual;
         atual= atual->proximo;
@@ -44,12 +54,13 @@ void limpa (Baralho *baralho){
     if (baralho == NULL){
         return;
     }
-    if (baralho->sentinela == NULL){
+    if (baralho->sentinela->proximo == baralho->sentinela){ 
+        free(baralho->sentinela);
         free(baralho);
         return;
     }
     No *atual = baralho->sentinela->proximo;
-    No *proximo = atual->proximo->proximo;
+    No *proximo = atual->proximo;
     while (proximo != baralho->sentinela){
         free(atual);
         atual = proximo;
@@ -71,11 +82,15 @@ int corta (Baralho *b, int n){
     if (atual == b->sentinela){
         return 0;
     }
-    atual=atual->proximo;
-    b->sentinela->proximo = atual;
-    b->sentinela->anterior->proximo = atual->anterior;
-    atual->anterior->proximo = b->sentinela;
-    atual->anterior = b->sentinela;
+    No *topo = b->sentinela->anterior;
+    No *fundo = b->sentinela->proximo;
+    No *topo_novo = atual;
+    atual->proximo->anterior = b->sentinela;
+    b->sentinela->anterior = atual;
+    b->sentinela->proximo = atual->proximo;
+    atual->proximo = b->sentinela;
+    topo->proximo = fundo;
+    fundo->anterior =
     return 1;
 }
 
@@ -96,7 +111,7 @@ int sobe (Baralho *b, int n){
     atual->anterior->proximo = atual->proximo;
     atual->proximo->anterior = atual->anterior;
     atual->proximo = b->sentinela;
-    atual->anterior = b->sentinela->anterior->anterior;
+    atual->anterior = b->sentinela->anterior;
     b->sentinela->anterior->proximo = atual;
     b->sentinela->anterior = atual;
     return 1;
