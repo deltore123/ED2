@@ -8,8 +8,6 @@ struct No {
     struct No *anterior;
 };
 
-
-
 struct Baralho {
     No *sentinela;
 };
@@ -20,6 +18,13 @@ Baralho *criar (int n){
         return NULL;
     }
     b->sentinela = malloc(sizeof(No));
+    if (b->sentinela == NULL) {
+        free(b);
+        return NULL;
+    }
+    b->sentinela->rotulo = -1;
+    b->sentinela->proximo = b->sentinela;
+    b->sentinela->anterior = b->sentinela;
     No *atual = b->sentinela;
     for (int i=1; i<=n; i++){
         atual->proximo = malloc(sizeof(No));
@@ -32,11 +37,10 @@ Baralho *criar (int n){
     }
     b->sentinela->anterior = atual;
     atual->proximo = b->sentinela;
-    b->sentinela->rotulo = -1;
     return b;
 }
 
-void limpa (Baralho *baralho, int n){
+void limpa (Baralho *baralho){
     if (baralho == NULL){
         return;
     }
@@ -53,7 +57,7 @@ void limpa (Baralho *baralho, int n){
 }
 
 int corta (Baralho *b, int n){
-    if (b = NULL || b->sentinela== NULL){
+    if (b == NULL || b->sentinela== NULL){
         return 0;
     }
     No *atual = b->sentinela->proximo;
@@ -72,7 +76,7 @@ int corta (Baralho *b, int n){
 }
 
 int sobe (Baralho *b, int n){
-        if (b = NULL || b->sentinela== NULL){
+    if (b == NULL || b->sentinela== NULL){
         return 0;
     }
     No *atual = b->sentinela->proximo;
@@ -112,12 +116,95 @@ int vira (Baralho *b){
     return 1;
 }
 
-int vira_topo (Baralho *b, int k);
+int vira_topo(Baralho *b, int k) {
+    if (b == NULL || b->sentinela == NULL)
+        return 0;
 
-int pos_carta (Baralho *b, int p);
+    No *s = b->sentinela;
+    No *atual = s->proximo;
 
-int sobe (Baralho *b, int x);
+    while (atual != s && atual->rotulo != k)
+        atual = atual->proximo;
 
-void mostra (Baralho *b);
+    if (atual == s)
+        return 0;
+
+    if (atual == s->anterior)
+        return 1;
+
+    No *topo = s->anterior;
+    No *base = atual->anterior;
+
+    No *p = topo;
+    No *aux;
+
+    while (p != atual) {
+        aux = p->proximo;
+        p->proximo = p->anterior;
+        p->anterior = aux;
+        p = aux;
+    }
+    s->anterior = base;
+    base->proximo = s;
+
+    topo->anterior = atual;
+    atual->proximo = topo;
+
+    return 1;
+}
+
+int pos_carta (Baralho *b, int p){
+    int contador= 0;
+    if (b==NULL || b->sentinela->proximo == b->sentinela){
+        return 0;
+    }
+    No *atual = b->sentinela->proximo;
+    while (atual!=b->sentinela && atual->rotulo != p){
+        atual = atual->proximo;
+        contador++;
+    }
+    if (atual == b->sentinela){
+        return 0;
+    }
+    else {
+        return contador;
+    }
+    
+}
+
+int sobe (Baralho *b, int p){
+    if (b==NULL || b->sentinela->proximo == b->sentinela){
+        return 0;
+    }
+    No *atual = b->sentinela->proximo;
+    while (atual!=b->sentinela && atual->rotulo != p){
+        atual = atual->proximo;
+    }
+    if (atual->rotulo != p){
+        return 0;
+    }
+    atual->proximo->anterior = atual->anterior;
+    atual->anterior->proximo = atual->proximo;
+    atual->anterior = b->sentinela->anterior;
+    b->sentinela->anterior->proximo = atual;
+    b->sentinela->anterior = atual;
+    atual->proximo = b->sentinela;
+    return 1;
+}
+
+void mostra (Baralho *b){
+    if (b==NULL || b->sentinela->proximo == b->sentinela){
+        return;
+    }
+    No *atual = b->sentinela->anterior;
+    while (atual != b->sentinela){
+        printf ("%d", atual->rotulo);
+        atual = atual->anterior;
+        if (atual ->proximo == b->sentinela){
+            printf("%d", atual->rotulo);
+            return;
+        }
+    }
+}
 
 
