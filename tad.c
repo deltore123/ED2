@@ -31,7 +31,7 @@ Baralho *criar (int n){
         if (atual->proximo == NULL){
             return NULL;
         }
-        atual->proximo.rotulo = n;
+        atual->proximo->rotulo = i;
         atual->proximo->anterior=atual;
         atual= atual->proximo;
     }
@@ -42,6 +42,10 @@ Baralho *criar (int n){
 
 void limpa (Baralho *baralho){
     if (baralho == NULL){
+        return;
+    }
+    if (baralho->sentinela == NULL){
+        free(baralho);
         return;
     }
     No *atual = baralho->sentinela->proximo;
@@ -64,7 +68,7 @@ int corta (Baralho *b, int n){
     while (atual!=b->sentinela && atual->rotulo != n){
         atual = atual->proximo;
     }
-    if (atual->rotulo != n){
+    if (atual == b->sentinela){
         return 0;
     }
     atual=atual->proximo;
@@ -83,7 +87,7 @@ int sobe (Baralho *b, int n){
     while (atual!=b->sentinela && atual->rotulo != n){
         atual = atual->proximo;
     }
-    if (atual->rotulo != n){
+    if (atual == b->sentinela){
         return 0;
     }
     if (atual == b->sentinela->anterior){
@@ -172,25 +176,7 @@ int pos_carta (Baralho *b, int p){
     
 }
 
-int sobe (Baralho *b, int p){
-    if (b==NULL || b->sentinela->proximo == b->sentinela){
-        return 0;
-    }
-    No *atual = b->sentinela->proximo;
-    while (atual!=b->sentinela && atual->rotulo != p){
-        atual = atual->proximo;
-    }
-    if (atual->rotulo != p){
-        return 0;
-    }
-    atual->proximo->anterior = atual->anterior;
-    atual->anterior->proximo = atual->proximo;
-    atual->anterior = b->sentinela->anterior;
-    b->sentinela->anterior->proximo = atual;
-    b->sentinela->anterior = atual;
-    atual->proximo = b->sentinela;
-    return 1;
-}
+
 
 void mostra (Baralho *b){
     if (b==NULL || b->sentinela->proximo == b->sentinela){
