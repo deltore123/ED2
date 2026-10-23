@@ -1,7 +1,7 @@
 #ifndef TAD_H
 #define TAD_H
 
-typedef No No;
+typedef struct No No;
 
 typedef struct Baralho Baralho;
 
@@ -18,8 +18,6 @@ int vira (Baralho *b);
 int vira_topo (Baralho *b, int k);
 
 int pos_carta (Baralho *b, int p);
-
-int sobe (Baralho *b, int x);
 
 void mostra (Baralho *b);
 

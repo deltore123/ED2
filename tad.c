@@ -102,7 +102,6 @@ int corta (Baralho *b, int n){
     }
     No *topo = b->sentinela->anterior;
     No *fundo = b->sentinela->proximo;
-    No *topo_novo = atual;
     // carta seguinte a n vira o novo fundo
     atual->proximo->anterior = b->sentinela;
     b->sentinela->anterior = atual;
