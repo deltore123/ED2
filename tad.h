@@ -7,11 +7,11 @@ typedef struct Baralho Baralho;
 
 Baralho *criar (int n);
 
-void limpa (Baralho *baralho, int n);
+void limpa (Baralho *baralho);
 
-int corta (Baralho *b);
+int corta (Baralho *b, int n);
 
-int sobe (Baralho *b);
+int sobe (Baralho *b, int n);
 
 int vira (Baralho *b);
 
