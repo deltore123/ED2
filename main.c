@@ -22,7 +22,9 @@ int main(void){
         if (strcmp(comando, "BARALHO") == 0){
             // Lê número de  cartas do baralho 
             int n;
-            scanf("%d", &n);
+            if (scanf("%d", &n) != 1) {
+                break;
+            }
             
             // Chama função para cirar o baralho 
             if (baralho != NULL) {
@@ -39,7 +41,9 @@ int main(void){
         else if (strcmp(comando, "CORTA") == 0){
             // Lê x 
             int x;
-            scanf("%d", &x);
+            if (scanf("%d", &x) != 1) {
+                break;
+            }
 
             // Chama função 
             int verificacao = corta(baralho, x);
@@ -55,7 +59,9 @@ int main(void){
         else if (strcmp(comando, "SOBE") == 0){
             // Lê x 
             int x;
-            scanf("%d", &x);
+            if (scanf("%d", &x) != 1) {
+                break;
+            }
 
             // Chama função
             int verificacao = sobe(baralho, x);
@@ -81,7 +87,9 @@ int main(void){
         else if (strcmp(comando, "VIRATOPO") == 0){
             // Lê k
             int k;
-            scanf("%d", &k);
+            if (scanf("%d", &k) != 1) {
+                break;
+            }
 
             // Chama função
             int verificacao = vira_topo(baralho,k);
@@ -95,7 +103,9 @@ int main(void){
         // Retorna o rótulo da carta de posição p 
         else if (strcmp(comando, "CARTA") == 0){
             int p;
-            scanf("%d", &p);
+            if (scanf("%d", &p) != 1) {
+                break;
+            }
             int rotulo = carta(baralho, p);
             if (rotulo == -1) {
                 printf("Erro na execução do comando\n");
@@ -108,7 +118,9 @@ int main(void){
         else if (strcmp(comando, "POSICAO") == 0){
             //Lê X
             int x;
-            scanf("%d", &x);
+            if (scanf("%d", &x) != 1) {
+                break;
+            }
             // Chama função
             int verificacao = pos_carta(baralho,x);
 
@@ -120,6 +132,17 @@ int main(void){
             }
         }
         
+        // Desfaz a operação mais recente do histórico
+        else if (strcmp(comando, "DESFAZ") == 0){
+            // Chama função
+            int verificacao = desfaz(baralho);
+
+            // Verifica se deu errado
+            if (verificacao == 0){
+                printf("Erro na execução do comando\n");
+            }
+        }
+
         // Mostra os rótulos do baralho do topo ao fundo
         else if (strcmp(comando, "MOSTRA") == 0){
             // Chama função
@@ -139,4 +162,3 @@ int main(void){
 
     return 0;
 }
-
