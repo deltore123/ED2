@@ -96,7 +96,7 @@ int main(void){
         else if (strcmp(comando, "CARTA") == 0){
             int p;
             scanf("%d", &p);
-            int rotulo = mostra(baralho, p);
+            int rotulo = carta(baralho, p);
             if (rotulo == -1) {
                 printf("Erro na execução do comando\n");
             } else {
