@@ -21,4 +21,6 @@ int pos_carta (Baralho *b, int p);
 
 void mostra (Baralho *b);
 
+int carta (Baralho *b, int p);
+
 #endif
