@@ -24,12 +24,25 @@ struct Historico {
     int qtd;      // quantos registros existem agora
 };
 
-// baralho guarda a sentinela e o historico
-// sentinela->proximo e o fundo, sentinela->anterior e o topo
+// baralho guarda a sentinela, o historico e a flag de invertido
+// sem inverter: sentinela->proximo e o fundo, sentinela->anterior e o topo
+// e "proximo" anda para cima. invertido troca os papeis dos dois ponteiros,
+// entao o VIRA so troca a flag
 struct Baralho {
     No *sentinela;
     Historico *hist;
+    int invertido;
 };
+
+// ponteiro do no p que aponta para a carta de cima (na sentinela: o fundo)
+No **cima (Baralho *b, No *p){
+    return b->invertido ? &p->anterior : &p->proximo;
+}
+
+// ponteiro do no p que aponta para a carta de baixo (na sentinela: o topo)
+No **baixo (Baralho *b, No *p){
+    return b->invertido ? &p->proximo : &p->anterior;
+}
 
 // cria o historico vazio com a capacidade dada
 Historico *hist_criar (int capacidade){
@@ -90,6 +103,7 @@ Baralho *criar (int n){
         free(b);
         return NULL;
     }
+    b->invertido = 0;
     b->sentinela->rotulo = -1;
     b->sentinela->proximo = b->sentinela;
     b->sentinela->anterior = b->sentinela;
@@ -156,189 +170,171 @@ void limpa (Baralho *baralho){
 }
 
 // corta o baralho: a carta n vira o topo e as de cima vao para o fundo na mesma ordem
-static int corta_sem_reg (Baralho *b, int n){
+void corta_sem_reg (Baralho *b, int n){
     if (b == NULL || b->sentinela== NULL){
-        return 0;
+        return;
     }
     // procura a carta n
-    No *atual = b->sentinela->proximo;
-    while (atual!=b->sentinela && atual->rotulo != n){
-        atual = atual->proximo;
+    No *s = b->sentinela;
+    No *atual = *cima(b, s);
+    while (atual!=s && atual->rotulo != n){
+        atual = *cima(b, atual);
     }
     // n nao encontrada
-    if (atual == b->sentinela){
-        return 0;
+    if (atual == s){
+        return;
     }
     // corte no topo nao muda o baralho
-    if (atual == b->sentinela->anterior){
-        return 1;
+    if (atual == *baixo(b, s)){
+        return;
     }
-    No *topo = b->sentinela->anterior;
-    No *fundo = b->sentinela->proximo;
-    // carta seguinte a n vira o novo fundo
-    atual->proximo->anterior = b->sentinela;
-    b->sentinela->anterior = atual;
-    b->sentinela->proximo = atual->proximo;
-    atual->proximo = b->sentinela;
+    No *topo = *baixo(b, s);
+    No *fundo = *cima(b, s);
+    // carta logo acima de n vira o novo fundo
+    No *acima = *cima(b, atual);
+    *baixo(b, acima) = s;
+    *baixo(b, s) = atual;
+    *cima(b, s) = acima;
+    *cima(b, atual) = s;
     // liga o antigo topo ao antigo fundo
-    topo->proximo = fundo;
-    fundo->anterior = topo;
-    return 1;
+    *cima(b, topo) = fundo;
+    *baixo(b, fundo) = topo;
 }
 
 // move a carta n para o topo
-static int sobe_sem_reg (Baralho *b, int n){
+// devolve a posicao original da carta (0 se nao achar), usada pelo desfaz
+int sobe_sem_reg (Baralho *b, int n){
     if (b == NULL || b->sentinela== NULL){
         return 0;
     }
-    // procura a carta n
-    No *atual = b->sentinela->proximo;
-    while (atual!=b->sentinela && atual->rotulo != n){
-        atual = atual->proximo;
+    // procura a carta n a partir do topo, contando a posicao na mesma passada
+    No *s = b->sentinela;
+    No *topo = *baixo(b, s);
+    No *atual = topo;
+    int pos = 1;
+    while (atual!=s && atual->rotulo != n){
+        atual = *baixo(b, atual);
+        pos++;
     }
     // n nao encontrada
-    if (atual == b->sentinela){
+    if (atual == s){
         return 0;
     }
     // ja esta no topo
-    if (atual == b->sentinela->anterior){
+    if (atual == topo){
         return 1;
     }
     // tira a carta da posicao atual
-    atual->anterior->proximo = atual->proximo;
-    atual->proximo->anterior = atual->anterior;
+    No *de_baixo = *baixo(b, atual);
+    No *de_cima = *cima(b, atual);
+    *cima(b, de_baixo) = de_cima;
+    *baixo(b, de_cima) = de_baixo;
     // coloca a carta no topo
-    atual->proximo = b->sentinela;
-    atual->anterior = b->sentinela->anterior;
-    b->sentinela->anterior->proximo = atual;
-    b->sentinela->anterior = atual;
-    return 1;
+    *cima(b, atual) = s;
+    *baixo(b, atual) = topo;
+    *cima(b, topo) = atual;
+    *baixo(b, s) = atual;
+    return pos;
 }
 
-// inverte o baralho inteiro
-static int vira_sem_reg (Baralho *b){
-    if (b==NULL || b->sentinela->proximo == NULL){
-        return 0;
+// inverte o baralho inteiro: so troca a flag, O(1)
+void vira_sem_reg (Baralho *b){
+    if (b == NULL){
+        return;
     }
-    No *s = b->sentinela;
-    No *p = s->proximo;
-    No *aux;
-    // troca proximo e anterior de todos os nos, comecando no primeiro
-    while (p != s){
-        aux = p->proximo;
-        p->proximo = p->anterior;
-        p->anterior = aux;
-        p = aux;
-    }
-    // troca os ponteiros da sentinela
-    aux = s->proximo;
-    s->proximo = s->anterior;
-    s->anterior = aux;
-    return 1;
+    b->invertido = !b->invertido;
 }
 
 // inverte as k cartas de cima
-static int vira_topo_sem_reg (Baralho *b, int k) {
+void vira_topo_sem_reg (Baralho *b, int k) {
     if (b == NULL || b->sentinela == NULL || k < 1)
-        return 0;
+        return;
 
     No *s = b->sentinela;
-    No *topo = s->anterior;
+    No *topo = *baixo(b, s);
     No *base = topo;
 
     // anda ate a k-esima carta a partir do topo
     for (int i = 1; i < k && base != s; i++){
-        base = base->anterior;
+        base = *baixo(b, base);
     }
 
     // k maior que o baralho (ou baralho vazio)
     if (base == s){
-        return 0;
+        return;
     }
 
     // carta logo abaixo do trecho (pode ser a sentinela)
-    No *abaixo = base->anterior;
+    No *abaixo = *baixo(b, base);
 
-    // troca proximo e anterior dos k nos
+    // troca proximo e anterior dos k nos (a troca vale nos dois sentidos)
     No *p = topo;
     No *aux;
     for (int i = 0; i < k; i++) {
-        aux = p->anterior;
+        aux = *baixo(b, p);
+        No *t = p->anterior;
         p->anterior = p->proximo;
-        p->proximo = aux;
+        p->proximo = t;
         p = aux;
     }
 
     // religa as pontas
-    abaixo->proximo = topo;
-    topo->anterior = abaixo;
-    base->proximo = s;
-    s->anterior = base;
-    return 1;
+    *cima(b, abaixo) = topo;
+    *baixo(b, topo) = abaixo;
+    *cima(b, base) = s;
+    *baixo(b, s) = base;
 }
 
 // corta e registra no historico (guarda o antigo topo)
-int corta (Baralho *b, int n){
+void corta (Baralho *b, int n){
     if (b == NULL || b->sentinela == NULL){
-        return 0;
+        return;
     }
     Registro r = {'C', carta(b, 1), 0};
-    if (!corta_sem_reg(b, n)){
-        return 0;
-    }
+    corta_sem_reg(b, n);
     hist_push(b->hist, r);
-    return 1;
 }
 
 // sobe e registra no historico (guarda a posicao original da carta)
-int sobe (Baralho *b, int n){
+void sobe (Baralho *b, int n){
     if (b == NULL || b->sentinela == NULL){
-        return 0;
+        return;
     }
-    Registro r = {'S', n, pos_carta(b, n)};
-    if (!sobe_sem_reg(b, n)){
-        return 0;
-    }
+    // uma passada so: sobe_sem_reg ja devolve a posicao original
+    Registro r = {'S', n, sobe_sem_reg(b, n)};
     hist_push(b->hist, r);
-    return 1;
 }
 
 // vira e registra no historico
-int vira (Baralho *b){
+void vira (Baralho *b){
     if (b == NULL || b->sentinela == NULL){
-        return 0;
+        return;
     }
     Registro r = {'V', 0, 0};
-    if (!vira_sem_reg(b)){
-        return 0;
-    }
+    vira_sem_reg(b);
     hist_push(b->hist, r);
-    return 1;
 }
 
 // vira_topo e registra no historico
-int vira_topo (Baralho *b, int k){
+void vira_topo (Baralho *b, int k){
     if (b == NULL || b->sentinela == NULL){
-        return 0;
+        return;
     }
     Registro r = {'T', k, 0};
-    if (!vira_topo_sem_reg(b, k)){
-        return 0;
-    }
+    vira_topo_sem_reg(b, k);
     hist_push(b->hist, r);
-    return 1;
 }
 
 // desfaz a operacao mais recente do historico
 // usa as versoes sem_reg para o desfazer nao entrar no historico
-int desfaz (Baralho *b){
+void desfaz (Baralho *b){
     if (b == NULL){
-        return 0;
+        return;
     }
     Registro r;
     // historico vazio: nao faz nada
     if (!hist_pop(b->hist, &r)){
-        return 1;
+        return;
     }
     switch (r.tipo){
         case 'C':
@@ -359,7 +355,6 @@ int desfaz (Baralho *b){
             vira_topo_sem_reg(b, r.arg);
             break;
     }
-    return 1;
 }
 
 // retorna a posicao da carta p contando a partir do topo (0 se nao achar)
@@ -369,9 +364,9 @@ int pos_carta (Baralho *b, int p){
         return 0;
     }
     // conta a partir do topo
-    No *atual = b->sentinela->anterior;
+    No *atual = *baixo(b, b->sentinela);
     while (atual!=b->sentinela && atual->rotulo != p){
-        atual = atual->anterior;
+        atual = *baixo(b, atual);
         contador++;
     }
     // carta nao encontrada
@@ -389,18 +384,12 @@ void mostra (Baralho *b){
     if (b==NULL || b->sentinela->proximo == b->sentinela){
         return;
     }
-    No *atual = b->sentinela->anterior;
+    No *atual = *baixo(b, b->sentinela);
     while (atual != b->sentinela){
-        if (atual -> anterior == b->sentinela || b->sentinela->proximo == atual){
-            printf("%d\n", atual->rotulo);
-            return;
-        }
-        printf ("%d ", atual->rotulo);
-        atual = atual->anterior;
-        if (atual -> anterior == b->sentinela){
-            printf("%d\n", atual->rotulo);
-            return;
-        }
+        printf("%d", atual->rotulo);
+        atual = *baixo(b, atual);
+        // espaco entre as cartas, quebra de linha depois da ultima
+        putchar(atual == b->sentinela ? '\n' : ' ');
     }
 }
 //mostra o rotulo da carta na posicao p
@@ -408,10 +397,10 @@ int carta (Baralho *b, int p){
     if (b== NULL || b->sentinela->proximo == b->sentinela){
         return -1;
     }
-    No *atual = b->sentinela->anterior;
+    No *atual = *baixo(b, b->sentinela);
     int contador= 1;
     while (contador != p && atual != b->sentinela){
-        atual = atual->anterior;
+        atual = *baixo(b, atual);
         contador++;
     }
     if (atual == b->sentinela){

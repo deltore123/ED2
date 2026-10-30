@@ -26,13 +26,13 @@ Baralho *criar (int n);
 
 void limpa (Baralho *baralho);
 
-int corta (Baralho *b, int n);
+void corta (Baralho *b, int n);
 
-int sobe (Baralho *b, int n);
+void sobe (Baralho *b, int n);
 
-int vira (Baralho *b);
+void vira (Baralho *b);
 
-int vira_topo (Baralho *b, int k);
+void vira_topo (Baralho *b, int k);
 
 int pos_carta (Baralho *b, int p);
 
@@ -42,6 +42,6 @@ int carta (Baralho *b, int p);
 
 // desfaz a operacao mais recente do historico (ultimas 100)
 // historico vazio: nao faz nada. o proprio desfaz nao entra no historico
-int desfaz (Baralho *b);
+void desfaz (Baralho *b);
 
 #endif

@@ -32,9 +32,6 @@ int main(void){
             }
 
             baralho = criar(n);
-            if (baralho == NULL) {
-                printf("Erro na execução do comando\n");
-            }
         }
 
         // Corta baralho acima da carta x ( cartas vão para o fundo na mesma ordem)
@@ -45,14 +42,7 @@ int main(void){
                 break;
             }
 
-            // Chama função 
-            int verificacao = corta(baralho, x);
-
-            // Verifica se deu errado
-            if (verificacao == 0){
-                printf("Erro na execução do comando\n");
-            }
-
+            corta(baralho, x);
         }
 
         // Tira x de onde estiver e coloca no topo
@@ -63,24 +53,12 @@ int main(void){
                 break;
             }
 
-            // Chama função
-            int verificacao = sobe(baralho, x);
-
-             // Verifica se deu errado
-            if (verificacao == 0){
-                printf("Erro na execução do comando\n");
-            }
+            sobe(baralho, x);
         }
 
         // Inverte baralho ( carta do funo vai para o topo)
         else if (strcmp(comando, "VIRA") == 0){
-             // Chama função
-            int verificacao = vira(baralho);
-
-             // Verifica se deu errado
-            if (verificacao == 0){
-                printf("Erro na execução do comando\n");
-            }
+            vira(baralho);
         }
 
         // Inverte só as k cartas de cima
@@ -91,13 +69,7 @@ int main(void){
                 break;
             }
 
-            // Chama função
-            int verificacao = vira_topo(baralho,k);
-
-            // Verifica se deu errado
-            if (verificacao == 0){
-                printf("Erro na execução do comando\n");
-            }
+            vira_topo(baralho, k);
         }
 
         // Retorna o rótulo da carta de posição p 
@@ -106,12 +78,7 @@ int main(void){
             if (scanf("%d", &p) != 1) {
                 break;
             }
-            int rotulo = carta(baralho, p);
-            if (rotulo == -1) {
-                printf("Erro na execução do comando\n");
-            } else {
-                printf("%d\n", rotulo);
-            }
+            printf("%d\n", carta(baralho, p));
         }
 
         // Retorna a posição da carta x 
@@ -121,40 +88,22 @@ int main(void){
             if (scanf("%d", &x) != 1) {
                 break;
             }
-            // Chama função
-            int verificacao = pos_carta(baralho,x);
-
-            // Verifica se deu errado
-            if (verificacao == 0){
-                printf("Erro na execução do comando\n");
-            } else {
-                printf("%d\n", verificacao);
-            }
+            printf("%d\n", pos_carta(baralho, x));
         }
         
         // Desfaz a operação mais recente do histórico
         else if (strcmp(comando, "DESFAZ") == 0){
-            // Chama função
-            int verificacao = desfaz(baralho);
-
-            // Verifica se deu errado
-            if (verificacao == 0){
-                printf("Erro na execução do comando\n");
-            }
+            desfaz(baralho);
         }
 
         // Mostra os rótulos do baralho do topo ao fundo
         else if (strcmp(comando, "MOSTRA") == 0){
-            // Chama função
             mostra(baralho);
         }
 
         // Encerra ciclo
         else if (strcmp(comando, "FIM") == 0){
             break;
-        }
-        else {
-            printf("Erro na execução do comando\n");
         }
     }
 
